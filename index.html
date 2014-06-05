@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Coduno</title>
+		<style>
+* { margin:0; padding:0; }
+html, body { width:100%; height:100%; }
+canvas { display:block; }
+		</style>
+	</head>
+	<body>
+		<canvas></canvas>
+		<script type="text/javascript" />
+var canvas = document.querySelector( 'canvas' ),
+    c = canvas.getContext( '2d' ),
+    mouseX = 200,
+    mouseY = 100,
+    width = window.innerWidth,
+    height = window.innerHeight,
+    distx = 200,
+    disty = 100,
+    hw = width / 2,
+    hh = height / 2,
+    longest = Math.sqrt( ( hw * hw ) + ( hh * hh ) ),
+    factor = 0.4,
+    realdistance = 0,
+    blur = [ 2, 9 ],
+    shadowalpha = [ 3, 8 ],
+    blurfactor = blur[1] / longest,
+    shadowfactor = shadowalpha[1] / longest;
+
+canvas.width = width;
+canvas.height = height;
+draw();
+
+function draw() {
+  distx = mouseX - hw;
+  disty = mouseY - hh;
+  realdistance = Math.sqrt( ( distx * distx ) + ( disty * disty ) );
+  var currentblur = parseInt( blurfactor * realdistance, 10 );
+  if ( currentblur < blur[ 0 ] ) {currentblur = blur[0];}
+  var currentalpha = parseInt( shadowfactor * realdistance, 10 );
+  if ( currentalpha < shadowalpha[ 0 ] ) { currentalpha = shadowalpha[0]; }
+
+  c.clearRect( 0, 0, width, height );
+  c.save();
+  c.translate( hw, hh );
+
+  c.beginPath();
+  c.shadowOffsetX = -distx * factor;
+  c.shadowOffsetY = -disty * factor;
+  c.shadowBlur = currentblur;
+  c.shadowColor = 'rgba(0,0,0,' + (1 - currentalpha / 10)  + ')';
+  c.fillStyle = 'black';
+  var text = 'Coduno';
+  c.font = "bold 24px sans-serif";
+  var len = c.measureText( text );
+  c.fillText( text, -len.width/2, 12 );
+  c.closePath();
+
+  c.restore();
+}
+
+// get the mouse position on the canvas (some browser trickery involved)
+canvas.addEventListener( 'mousemove', function( event ) {
+  if( event.offsetX ){
+    mouseX = event.offsetX;
+    mouseY = event.offsetY;
+  } else {
+    mouseX = event.pageX - event.target.offsetLeft;
+    mouseY = event.pageY - event.target.offsetTop;
+  }
+  // call the draw function
+  draw();
+}, false );
+		</script>
+	</body>
+</html>
